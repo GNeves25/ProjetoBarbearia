@@ -113,13 +113,14 @@ const DateList = styled.ScrollView``;
 
 const DateItem = styled.TouchableOpacity`
     width: 45px;
-    justify-content: center;
-    border-radius: center;
+    justify-content: center;    
+    align-items: center;
+    border-radius: 10px;
     padding-top: 5px;
     padding-bottom: 5px;
 `;
 
-const DateItemWeekday = styled.Text`
+const DateItemWeekDay = styled.Text`
     font-size: 16px;
     font-weight: bold;
 `;
@@ -165,10 +166,11 @@ export default ({ show, setShow, user, service }) => {
     const [listHours, setListHours] = useState([]);
 
     useEffect(() => {
+        if (user.available) {
         let daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
         let newListDays = [];
 
-        for (let i = 0; i < daysInMonth; i++) {
+        for (let i = 1; i <= daysInMonth; i++) {
 
             let d = new Date(selectedYear, selectedMonth, i);
             let year = d.getFullYear();
@@ -178,25 +180,25 @@ export default ({ show, setShow, user, service }) => {
             month = month < 10 ? '0' + month : month;
             day = day < 10 ? '0' + day : day;
 
-            let selDate = `${year}-${month}-${day}`;
+            let selDate = `${year}-${month}-${day}`;            
 
-            let availability = user.available.filter(e => e.date === selDate);
+                let availability = user.available.filter(e => e.date === selDate);
 
-            newListDays.push({
-                status: availability.length > 0 ? true : false,
-                weekday: days[d.getDay()],
-                number: i
+                newListDays.push({
+                    status: availability.length > 0 ? true : false,
+                    weekday: days[d.getDay()],
+                    number: i
 
-            });
+                });
+            }
+
+            setListDays(newListDays);
+            setSelectedDay(0);
+            setListHours([]);
+            setSelectedHour(0);
         }
-
-        setListDays(newlistDays);
-        setSelectedDay(1);
-        setListHours([]);
-        setSelectedHour([]);
-
-    }, [selectedMonth, selectedYear]);
-
+    }, [user, selectedMonth, selectedYear]);
+ 
     useEffect(() => {
         let today = new Date();
         setSelectedYear(today.getFullYear());
@@ -210,7 +212,7 @@ export default ({ show, setShow, user, service }) => {
         mountDate.setMonth(mountDate.getMonth() - 1);
         setSelectedYear(mountDate.getFullYear());
         setSelectedMonth(mountDate.getMonth());
-        setSelectedDay(1);
+        setSelectedDay(0);
     }
 
     const handleRightDateClick = () => {
@@ -218,7 +220,7 @@ export default ({ show, setShow, user, service }) => {
         mountDate.setMonth(mountDate.getMonth() + 1);
         setSelectedYear(mountDate.getFullYear());
         setSelectedMonth(mountDate.getMonth());
-        setSelectedDay(1);
+        setSelectedDay(0);
     }
 
     const handleCloseButton = () => {
@@ -272,10 +274,22 @@ export default ({ show, setShow, user, service }) => {
                             {listDays.map((item, key) => (
                                 <DateItem
                                     key={key}
-                                    onPress={() => { }}
+                                    onPress={() => item.status ? setSelectedDay(item.number) : null}
+                                    style={{
+                                        opacity: item.status ? 1 : 0.5,
+                                        backgroundColor: item.number === selectedDay ? '#4EAD8E' : '#FFFFFF'
+                                    }}
                                 >
-                                    <DateItemWeekday>{item.weekday}</DateItemWeekday>
-                                    <DateItemNumber>{item.number}</DateItemNumber>
+                                    <DateItemWeekDay
+                                        style={{
+                                            color: item.number === selectedDay ? '#FFFFFF' : '#000000'
+                                        }}
+                                    >{item.weekday}</DateItemWeekDay>
+                                    <DateItemNumber
+                                        style={{
+                                            color: item.number === selectedDay ? '#FFFFFF' : '#000000'
+                                        }}
+                                    >{item.number}</DateItemNumber>
                                 </DateItem>
                             ))}
                         </DateList>
